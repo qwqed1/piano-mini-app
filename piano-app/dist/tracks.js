@@ -29,16 +29,45 @@ export function midi(pitch) {
   if (!match) throw new Error('Invalid pitch');
   return (Number(match[3]) + 1) * 12 + {C:0,D:2,E:4,F:5,G:7,A:9,B:11}[match[1]] + (match[2] ? 1 : 0);
 }
-function chart(sequence, bpm, lanes) {
+export function chart(sequence, bpm, lanes, offsetTime = 2.2, idOffset = 0, loop = 0) {
   let beat = 0;
   return sequence.map(([pitch, beats], index) => {
-    const note = { id: index, lane: lanes[index % lanes.length], midi: midi(pitch), time: 2.2 + beat * 60 / bpm, duration: beats * 60 / bpm };
+    const isHold = beats >= 1.2;
+    const duration = beats * 60 / bpm;
+    const note = {
+      id: idOffset + index,
+      lane: lanes[index % lanes.length],
+      midi: midi(pitch),
+      time: offsetTime + beat * 60 / bpm,
+      duration,
+      isHold,
+      holdDuration: isHold ? duration : 0,
+      loop
+    };
     beat += beats;
     return note;
   });
 }
+const joyLanes = [0,1,2,3,3,2,1,0,0,1,2,3,2,1,0];
+const starLanes = [0,0,2,2,3,3,2,1,1,2,2,1,1,0];
+const eliseLanes = [3,2,3,2,3,1,2,1,0,0,1,2,3,0,1,3,2];
+
+export function createLoopNotes(track, loop = 1) {
+  const offsetTime = 2.2 + loop * track.loopDuration;
+  const idOffset = loop * track.sequence.length;
+  return chart(track.sequence, track.bpm, track.lanes, offsetTime, idOffset, loop);
+}
+
 export const tracks = [
-  {id:'joy',title:'Ода к радости',composer:'Людвиг ван Бетховен',difficulty:'easy',bpm:86,cover:'',symbol:'♪',travel:2.1,notes:chart(joy,86,[0,1,2,3,3,2,1,0,0,1,2,3,2,1,0])},
-  {id:'star',title:'Маленькая звезда',composer:'Французская народная мелодия',difficulty:'easy',bpm:100,cover:'cover-lilac',symbol:'✧',travel:2.1,notes:chart(star,100,[0,0,2,2,3,3,2,1,1,2,2,1,1,0])},
-  {id:'elise',title:'К Элизе',composer:'Людвиг ван Бетховен',difficulty:'medium',bpm:112,cover:'cover-orange',symbol:'♫',travel:1.75,notes:chart(elise,112,[3,2,3,2,3,1,2,1,0,0,1,2,3,0,1,3,2])}
-].map(track => ({...track, duration:track.notes.at(-1).time + track.notes.at(-1).duration + .7}));
+  {id:'joy',title:'Ода к радости',composer:'Людвиг ван Бетховен',difficulty:'easy',bpm:86,cover:'',symbol:'♪',travel:2.1,sequence:joy,lanes:joyLanes,totalBeats:joy.reduce((s,[,b])=>s+b,0),notes:chart(joy,86,joyLanes)},
+  {id:'star',title:'Маленькая звезда',composer:'Французская народная мелодия',difficulty:'easy',bpm:100,cover:'cover-lilac',symbol:'✧',travel:2.1,sequence:star,lanes:starLanes,totalBeats:star.reduce((s,[,b])=>s+b,0),notes:chart(star,100,starLanes)},
+  {id:'elise',title:'К Элизе',composer:'Людвиг ван Бетховен',difficulty:'medium',bpm:112,cover:'cover-orange',symbol:'♫',travel:1.75,sequence:elise,lanes:eliseLanes,totalBeats:elise.reduce((s,[,b])=>s+b,0),notes:chart(elise,112,eliseLanes)}
+].map(track => {
+  const loopDuration = track.totalBeats * 60 / track.bpm;
+  return {
+    ...track,
+    loopDuration,
+    duration: track.notes.at(-1).time + track.notes.at(-1).duration + .7
+  };
+});
+

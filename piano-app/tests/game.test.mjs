@@ -60,3 +60,95 @@ test('corrupt and unavailable device storage never prevent playing',()=>{
   assert.equal(saveProgress({}, {setItem:()=>{throw new Error('quota');}}),false);
 });
 test('MIDI conversion supports the sharp notes in Fur Elise',()=>{assert.equal(midi('A4'),69);assert.equal(midi('D#5'),75);assert.throws(()=>midi('bad'));});
+
+test('hold notes: pressing enters holding state and holding to the end completes note', () => {
+  const track = tracks[0];
+  const game = new RhythmGame(track);
+  game.start();
+  const holdNote = game.notes.find(n => n.isHold);
+  assert.ok(holdNote, 'track should have at least one hold note');
+
+  // Play through up to the hold note
+  for (const n of game.notes) {
+    game.advance(n.time);
+    if (n.id === holdNote.id) {
+      assert.equal(game.press(n.lane), 'perfect');
+      assert.equal(n.status, 'holding');
+      break;
+    } else {
+      game.press(n.lane);
+    }
+  }
+
+  // Advance partway: hold tick event
+  game.advance(holdNote.time + 0.15);
+  const events = game.drainEvents();
+  assert.ok(events.some(e => e.type === 'hold_tick' || e.type === 'hold_start'));
+
+  // Advance to completion
+  game.advance(holdNote.time + holdNote.holdDuration);
+  assert.equal(holdNote.status, 'held');
+  const finalEvents = game.drainEvents();
+  assert.ok(finalEvents.some(e => e.type === 'hold_complete'));
+});
+
+test('hold notes: early release breaks hold, consumes a life and penalizes', () => {
+  const track = tracks[0];
+  const game = new RhythmGame(track);
+  game.start();
+  const holdNote = game.notes.find(n => n.isHold);
+
+  // Play through up to the hold note
+  for (const n of game.notes) {
+    game.advance(n.time);
+    if (n.id === holdNote.id) {
+      assert.equal(game.press(n.lane), 'perfect');
+      assert.equal(n.status, 'holding');
+      break;
+    } else {
+      game.press(n.lane);
+    }
+  }
+
+  const prevLives = game.lives;
+  // Released way too early
+  game.advance(holdNote.time + 0.1);
+  game.release(holdNote.lane);
+  assert.equal(holdNote.status, 'dropped');
+  assert.equal(game.lives, prevLives - 1);
+  const events = game.drainEvents();
+  assert.ok(events.some(e => e.type === 'hold_break'));
+});
+
+test('speed and score multiplier scale dynamically with combo', () => {
+  const game = new RhythmGame(tracks[0]);
+  assert.equal(game.speed, 1);
+  assert.equal(game.multiplier, 1);
+
+  game.combo = 20;
+  assert.ok(game.speed > 1.2);
+  assert.equal(game.multiplier, 2);
+
+  game.combo = 75;
+  assert.ok(game.speed >= 1.9);
+  assert.equal(game.multiplier, 8);
+});
+
+test('endless mode generates subsequent melody loops seamlessly', () => {
+  const track = tracks[0];
+  const game = new RhythmGame(track, { endless: true });
+  game.start();
+  const initialNotes = [...game.notes];
+
+  for (const n of initialNotes) {
+    game.advance(n.time);
+    game.hit(n.lane);
+  }
+
+  // New loop should have been appended seamlessly while playing
+  assert.ok(game.notes.length > initialNotes.length, 'New notes should have been queued');
+  assert.ok(game.loop >= 1);
+  assert.equal(game.state, 'playing'); // Did not finish at track.duration
+});
+
+
