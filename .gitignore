@@ -1,0 +1,7 @@
+﻿node_modules/
+.sites-runtime/
+output/
+.playwright-cli/
+*.tar.gz
+.env
+.vercel

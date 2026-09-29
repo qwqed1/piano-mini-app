@@ -1,0 +1,13 @@
+{
+  "name": "piano-mini-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build": "npm run check",
+    "check": "node --check dist/app.js && node --check dist/engine.js && node --check dist/audio.js && node --check dist/tracks.js"
+  }
+}

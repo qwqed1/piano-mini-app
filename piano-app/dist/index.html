@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121411">
+  <meta name="description" content="Поймай ритм: играй любимые мелодии на четырёх дорожках. Игра-пианино для телефона и Telegram.">
+  <title>Piano — поймай ритм</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23d6f880'/%3E%3Cpath d='M10 9h5v22h-5zm8 0h5v22h-5zm8 0h5v22h-5z' fill='%23121411'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="brand" aria-label="Piano — главная"><span class="brand-icon"><i></i><i></i><i></i></span>piano<span class="brand-dot">.</span></a>
+      <nav class="top-nav" aria-label="Основная навигация"><button class="nav-link active" id="nav-play">Играть</button><button class="nav-link" id="nav-records">Мои рекорды</button></nav>
+      <div class="header-actions"><button class="icon-button" id="sound-toggle" aria-label="Выключить звук" aria-pressed="false"></button><button class="icon-button" id="help-button" aria-label="Как играть">?</button><span class="avatar" id="avatar" aria-label="Игрок">P</span></div>
+    </header>
+    <main id="home">
+      <div class="page-intro"><div><div class="eyebrow"><span class="tiny-note">♫</span> ТВОЯ МУЗЫКАЛЬНАЯ ПАУЗА</div><h1>Поймай <span>ритм.</span></h1><p>Четыре дорожки. Любимые мелодии. Весь мир на паузе.</p></div><span class="intro-stamp">FEEL THE MUSIC<br><b>PLAY THE MOMENT</b></span></div>
+      <div class="home-grid">
+        <div class="main-column">
+          <section class="featured" aria-labelledby="featured-title">
+            <div class="featured-content"><span class="feature-tag">ТВОЯ СЛЕДУЮЩАЯ МЕЛОДИЯ</span><div class="featured-details"><span class="difficulty easy" id="featured-difficulty">Легко</span><h2 id="featured-title">Ода к радости</h2><p id="featured-composer">Людвиг ван Бетховен</p><div class="track-meta" id="featured-meta">36 сек <span>·</span> 86 BPM</div></div><button class="primary-button" id="play-button"><span class="play-triangle"></span> Играть</button></div>
+            <div class="piano-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="art-note note-one">♪</span><span class="art-note note-two">♫</span><div class="art-caption">JUST<br>ONE<br><em>MORE.</em></div><div class="keyboard-art"><i></i><i class="black-key"></i><i></i><i class="black-key"></i><i></i><i></i><i class="black-key"></i><i></i><i class="black-key"></i><i></i><i class="black-key"></i><i></i></div><div class="floating-tile tile-one"></div><div class="floating-tile tile-two"></div><div class="floating-tile tile-three"></div></div>
+          </section>
+          <section class="collection" aria-labelledby="collection-title"><div class="section-heading"><h2 id="collection-title">Коллекция мелодий <span>03</span></h2><div class="filters" aria-label="Сложность"><button class="filter active" data-filter="all" aria-pressed="true">Все</button><button class="filter" data-filter="easy" aria-pressed="false">Легко</button><button class="filter" data-filter="medium" aria-pressed="false">Сложнее</button></div></div><div class="track-list" id="track-list"></div></section>
+        </div>
+        <aside class="side-column"><section class="progress-card"><div class="eyebrow">ЛИЧНЫЙ РИТМ <span class="small-symbol">✦</span></div><div class="progress-number"><span id="completed-count">0</span><small>/ 3</small></div><h2>мелодий пройдено</h2><div class="progress-bars" aria-hidden="true"><i></i><i></i><i></i></div><p id="progress-message">Большая музыка начинается<br>с первого тапа.</p><div class="personal-stats"><div><span>Лучшее комбо</span><b id="best-combo">—</b></div><div><span>Сыграно партий</span><b id="total-plays">0</b></div></div></section><section class="how-card"><div class="how-title"><span class="small-symbol">↙</span><h2>Всё в твоих пальцах</h2></div><p>Нажимай на дорожку, когда клавиша достигает линии.</p><div class="mini-lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div><div class="key-hints"><kbd>D</kbd><kbd>F</kbd><kbd>J</kbd><kbd>K</kbd><span>или касайся экрана</span></div><button class="text-button" id="how-button">Как играть <span>↗</span></button></section></aside>
+      </div>
+      <footer class="app-footer"><span><span class="footer-note">♫</span> Музыка в одно касание</span><span>Надень наушники и будь в моменте</span></footer>
+    </main>
+    <section id="game-view" hidden aria-label="Игра на пианино"><div class="game-top"><button class="icon-button" id="leave-button" aria-label="Приостановить и выйти">‹</button><div class="game-song"><span id="game-song-name"></span><small id="game-song-author"></small></div><button class="icon-button" id="pause-button" aria-label="Пауза">Ⅱ</button></div><div class="game-stats"><div><span>ОЧКИ</span><b id="score">0</b></div><div class="combo-stat"><span>КОМБО</span><b id="combo">0<span>×</span></b></div><div><span>ПОПЫТКИ</span><b id="lives" aria-label="3 жизни">♥ ♥ ♥</b></div></div><div class="song-progress" role="progressbar" aria-label="Прогресс мелодии" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="song-progress-fill"></i></div><div class="game-board" id="game-board"><canvas id="game-canvas" aria-label="Четыре дорожки. Нажимайте D, F, J, K или касайтесь дорожек на линии попадания."></canvas><div class="lane-controls"><button data-lane="0" aria-label="Дорожка 1, клавиша D"><span>D</span></button><button data-lane="1" aria-label="Дорожка 2, клавиша F"><span>F</span></button><button data-lane="2" aria-label="Дорожка 3, клавиша J"><span>J</span></button><button data-lane="3" aria-label="Дорожка 4, клавиша K"><span>K</span></button></div><div class="game-overlay" id="game-overlay" hidden></div><div class="hit-feedback" id="hit-feedback" aria-hidden="true"></div></div><div class="game-bottom"><span id="game-time">0:00</span><span>Попадай в линию. Почувствуй мелодию.</span><span id="game-duration"></span></div><p class="sr-only" id="game-announcement" role="status" aria-live="polite"></p></section>
+  </div>
+  <dialog id="info-dialog"><button class="icon-button dialog-close" id="close-dialog" aria-label="Закрыть">×</button><div id="dialog-content"></div></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
